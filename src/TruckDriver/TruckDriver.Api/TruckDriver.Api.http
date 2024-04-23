@@ -1,0 +1,6 @@
+@TruckDriver.Api_HostAddress = https://localhost:44322
+
+GET {{TruckDriver.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
