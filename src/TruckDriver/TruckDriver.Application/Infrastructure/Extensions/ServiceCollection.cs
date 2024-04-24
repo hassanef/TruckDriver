@@ -19,8 +19,6 @@ namespace TruckDriver.Application.Infrastructure.Extensions
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ISecretService, AzureKeyVaultService>();
 
-            // Add more services here if needed
-
             return services;
         }
     }

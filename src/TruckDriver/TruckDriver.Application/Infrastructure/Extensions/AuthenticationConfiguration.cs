@@ -1,6 +1,7 @@
 ﻿using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -11,21 +12,17 @@ namespace TruckDriver.Application.Infrastructure.Extensions
 {
     public static class AuthenticationConfiguration
     {
-        public static void ConfigureAuthentication(this IServiceCollection services, WebApplicationBuilder builder)
+        public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuratio)
         {
-            //TODO: This part of code is just for testing and it must be remove from there
-            var credential = AzureKeyVaultCredential.Create(builder.Configuration["Azure:TenantId"], builder.Configuration["Azure:ClientId"], builder.Configuration["Azure:SecretKey"]);
-            if (credential is null)
-                throw new ArgumentNullException(nameof(credential));
-
-            var secretClient = new SecretClient(new Uri(builder.Configuration[AzureKeys.KeyVaultUri]), credential);
+            var secretClient = services.BuildServiceProvider().GetRequiredService<SecretClient>();
             if (secretClient is null)
                 throw new ArgumentNullException(nameof(secretClient));
 
-            var appIdUriValue = secretClient.GetSecret(builder.Configuration[AzureKeys.ApplicationIdUri]).Value;
+            var appIdUriValue = secretClient.GetSecret(configuratio[AzureKeys.ApplicationIdUri]).Value;
             if (appIdUriValue is null)
                 throw new ArgumentNullException(nameof(appIdUriValue));
-            var authorityEndpointUriValue = secretClient.GetSecret(builder.Configuration[AzureKeys.AuthorityEndpointUri]).Value;
+
+            var authorityEndpointUriValue = secretClient.GetSecret(configuratio[AzureKeys.AuthorityEndpointUri]).Value;
             if (authorityEndpointUriValue is null)
                 throw new ArgumentNullException(nameof(authorityEndpointUriValue));
 

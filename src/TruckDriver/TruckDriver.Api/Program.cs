@@ -5,16 +5,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 
-
-//var configuration = builder.Configuration.AddAzureKeyVault(
-//    vaultUri: new Uri(builder.Configuration[AzureKeys.KeyVaultUri]),
-//    credential: new DefaultAzureCredential()
-//).Build();
-
 builder.Services.ConfigureAzureKeyVault(builder.Configuration);
-builder.Services.ConfigureCosmosDB(builder);
+builder.Services.ConfigureCosmosDB(builder.Configuration);
 builder.Services.ConfigureSwagger();
-builder.Services.ConfigureAuthentication(builder);
+builder.Services.ConfigureAuthentication(builder.Configuration);
 builder.Services.ConfigureApiVersioning();
 builder.Services.AddTruckDriverServices();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

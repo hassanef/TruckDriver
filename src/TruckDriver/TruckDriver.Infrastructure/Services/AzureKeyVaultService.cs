@@ -1,40 +1,33 @@
-﻿using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
+﻿using Azure.Security.KeyVault.Secrets;
 using Microsoft.Extensions.Configuration;
 using TruckDriver.Domain.IServices;
 using TruckDriver.Domain.Utils;
-using TruckDriver.Infrastructure.Extensions;
 
 namespace TruckDriver.Infrastructure.Services
 {
     public class AzureKeyVaultService : ISecretService
     {
         private readonly IConfiguration _configuration;
+        private readonly SecretClient _secretClient;
 
-        public AzureKeyVaultService(IConfiguration configuration)
+        public AzureKeyVaultService(IConfiguration configuration, SecretClient secretClient)
         {
             _configuration = configuration;
+            _secretClient = secretClient;
         }
 
         public async Task<string> GetSecret(string secreKey)
         {
             try
             {
-                //credential is just for testing there
-                var credential = AzureKeyVaultCredential.Create(_configuration["Azure:TenantId"], _configuration["Azure:ClientId"], _configuration["Azure:SecretKey"]);
-                if(credential is null)
-                    throw new ArgumentNullException(nameof(credential));
-
                 var keyVaultUri = _configuration[AzureKeys.KeyVaultUri];
                 if (keyVaultUri is null)
                     throw new ArgumentNullException(nameof(keyVaultUri));
 
-                var secretClient = new SecretClient(new Uri(keyVaultUri), credential);
-                if (secretClient is null)
-                    throw new ArgumentNullException(nameof(secretClient));
+                var secret = await _secretClient.GetSecretAsync(secreKey);
+                if (secret is null)
+                    throw new ArgumentNullException(nameof(secret));
 
-                var secret = await secretClient.GetSecretAsync(secreKey);
-                
                 return secret.Value.Value;
             }
             catch (Exception ex)

@@ -1,37 +1,30 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TruckDriver.Application.Queries;
-using TruckDriver.Application.Queries.Contracts;
-using TruckDriver.Domain.IRepositories;
 using TruckDriver.Domain.Utils;
-using TruckDriver.Infrastructure.Extensions;
-using TruckDriver.Infrastructure.Repositories;
 
 namespace TruckDriver.Application.Infrastructure.Extensions
 {
     public static class CosmosDBConfiguration
     {
-        public static void ConfigureCosmosDB(this IServiceCollection services, WebApplicationBuilder builder)
+        public static void ConfigureCosmosDB(this IServiceCollection services, IConfiguration configuration)
         {
-            //TODO: This part of code is just for testing and it must be remove from there///////////////
-            var credential = AzureKeyVaultCredential.Create(builder.Configuration["Azure:TenantId"], builder.Configuration["Azure:ClientId"], builder.Configuration["Azure:SecretKey"]);
-            if (credential is null)
-                throw new ArgumentNullException(nameof(credential));
+            var secretClient = services.BuildServiceProvider().GetRequiredService<SecretClient>();
+            if (secretClient is null)
+                throw new ArgumentNullException(nameof(secretClient));
 
-            var configurationWithAzureKeyVault = builder.Configuration.AddAzureKeyVault(
-                                    vaultUri: new Uri(builder.Configuration[AzureKeys.KeyVaultUri]),
-                                    credential: credential
-                                ).Build();
-            ////////////////////////////////////////////////////////////////////////////////////////////
+            var cosmosEndpoint = secretClient.GetSecret(configuration[AzureKeys.CosmosEndpoint])?.Value;
+            if (cosmosEndpoint is null)
+                throw new ArgumentNullException(nameof(cosmosEndpoint));
+
+            var cosmosKey = secretClient.GetSecret(configuration[AzureKeys.CosmosKey])?.Value;
+            if (cosmosKey is null)
+                throw new ArgumentNullException(nameof(cosmosKey));
+
             services.AddSingleton<CosmosClient>(sp =>
             {
-                var configuration = sp.GetRequiredService<IConfiguration>();
-                var cosmosEndpoint = configurationWithAzureKeyVault[configuration[AzureKeys.CosmosEndpoint]];
-                var cosmosKey = configurationWithAzureKeyVault[configuration[AzureKeys.CosmosKey]];
-
-                return new CosmosClient(cosmosEndpoint, cosmosKey);
+                return new CosmosClient(cosmosEndpoint?.Value, cosmosKey?.Value);
             });
 
             services.AddSingleton(sp =>
@@ -44,8 +37,7 @@ namespace TruckDriver.Application.Infrastructure.Extensions
                 return database.GetContainer(containerName);
             });
 
-            services.AddScoped<ITruckDriverRepository, TruckDriverRepository>();
-            services.AddScoped<ITruckDriverQuery, TruckDriverQuery>();
+           
         }
     }
 }
