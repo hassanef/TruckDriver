@@ -1,18 +1,16 @@
 ﻿using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TruckDriver.Domain.Utils;
-using TruckDriver.Infrastructure.Extensions;
 
 namespace TruckDriver.Application.Infrastructure.Extensions
 {
     public static class AuthenticationConfiguration
     {
-        public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuratio)
+        public static void AddAuthentication(this IServiceCollection services, IConfiguration configuratio)
         {
             var secretClient = services.BuildServiceProvider().GetRequiredService<SecretClient>();
             if (secretClient is null)

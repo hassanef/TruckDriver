@@ -8,7 +8,7 @@ namespace TruckDriver.Application.Infrastructure.Extensions
 {
     public static class KeyVaultConfiguration
     {
-        public static void ConfigureAzureKeyVault(this IServiceCollection services, IConfiguration configuration)
+        public static void AddAzureKeyVault(this IServiceCollection services, IConfiguration configuration)
         {
             var keyVaultUri = configuration[AzureKeys.KeyVaultUri];
             if (keyVaultUri is null)

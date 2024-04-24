@@ -8,7 +8,7 @@ namespace TruckDriver.Application.Infrastructure.Extensions
 {
     public static class CosmosDBConfiguration
     {
-        public static void ConfigureCosmosDB(this IServiceCollection services, IConfiguration configuration)
+        public static void AddCosmosDB(this IServiceCollection services, IConfiguration configuration)
         {
             var secretClient = services.BuildServiceProvider().GetRequiredService<SecretClient>();
             if (secretClient is null)

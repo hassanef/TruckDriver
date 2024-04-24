@@ -4,11 +4,10 @@ using TruckDriver.Application.Infrastructure.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
-
-builder.Services.ConfigureAzureKeyVault(builder.Configuration);
-builder.Services.ConfigureCosmosDB(builder.Configuration);
-builder.Services.ConfigureSwagger();
-builder.Services.ConfigureAuthentication(builder.Configuration);
+builder.Services.AddAzureKeyVault(builder.Configuration);
+builder.Services.AddCosmosDB(builder.Configuration);
+builder.Services.AddSwagger();
+builder.Services.AddAuthentication(builder.Configuration);
 builder.Services.ConfigureApiVersioning();
 builder.Services.AddTruckDriverServices();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

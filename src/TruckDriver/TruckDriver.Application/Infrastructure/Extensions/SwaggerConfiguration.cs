@@ -9,7 +9,7 @@ namespace TruckDriver.Application.Infrastructure.Extensions
 {
     public static class SwaggerConfiguration
     {
-        public static void ConfigureSwagger(this IServiceCollection services)
+        public static void AddSwagger(this IServiceCollection services)
         {
             services.AddSwaggerGen(option =>
             {
