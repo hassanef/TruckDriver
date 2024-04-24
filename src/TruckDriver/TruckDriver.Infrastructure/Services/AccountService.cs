@@ -20,7 +20,7 @@ namespace TruckDriver.Infrastructure.IdentityServices
         }
         public async Task<string> SignIn(string key)
         {
-            if(!string.IsNullOrWhiteSpace(key))
+            if(string.IsNullOrWhiteSpace(key))
                 throw new ArgumentNullException("Secret key is null!");
             try
             {
