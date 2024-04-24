@@ -8,7 +8,7 @@ namespace TruckDriver.Infrastructure.Extensions
         {
             if (!string.IsNullOrWhiteSpace(tenantId) && !string.IsNullOrWhiteSpace(clientId) && !string.IsNullOrWhiteSpace(secretKey))
                 return new ClientSecretCredential(tenantId, clientId, secretKey);
-            throw new ArgumentNullException("Azure Configuration for KyyVault is null!");
+            throw new ArgumentNullException("Some parameters to create Azure keyvault credential are null!");
         }
     }
 }

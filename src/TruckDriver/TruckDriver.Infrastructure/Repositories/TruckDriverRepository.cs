@@ -14,12 +14,10 @@ namespace TruckDriver.Infrastructure.Repositories
         {
             var query = new QueryDefinition(string.Format(QueryTemplate, LocationParameter))
                                                     .WithParameter(LocationParameter, location);
-            if(query is null)
-                throw new ArgumentNullException(nameof(query));
 
             var queryResultSetIterator = _container.GetItemQueryIterator<Driver>(query);
             if (queryResultSetIterator is null)
-                throw new ArgumentNullException(nameof(queryResultSetIterator));
+                throw new ArgumentNullException(nameof(queryResultSetIterator), "Created query in Azure cosmosdb is null!");
 
             var drivers = new List<Driver>();
             while (queryResultSetIterator.HasMoreResults)

@@ -20,10 +20,17 @@ namespace TruckDriver.Infrastructure.IdentityServices
         }
         public async Task<string> SignIn(string key)
         {
+            if(!string.IsNullOrWhiteSpace(key))
+                throw new ArgumentNullException("Secret key is null!");
             try
             {
                 var appIdUriValue = await _secretService.GetSecret(_appIdUri);
+                if (appIdUriValue is null)
+                    throw new ArgumentNullException(nameof(appIdUriValue), "The result of Azure keyvault for appIdUriValue is null!");
+
                 var authorityEndpointUriValue = await _secretService.GetSecret(_authorityEndpointUri);
+                if (authorityEndpointUriValue is null)
+                    throw new ArgumentNullException(nameof(authorityEndpointUriValue), "The result of Azure keyvault for authorityEndpointUriValue is null!");
 
                 var app = ConfidentialClientApplicationBuilder
                               .Create(appIdUriValue)
@@ -31,14 +38,16 @@ namespace TruckDriver.Infrastructure.IdentityServices
                               .WithAuthority(new Uri(authorityEndpointUriValue))
                               .Build();
 
-                var result = await app.AcquireTokenForClient(new[] { $"{appIdUriValue}/.default" }).ExecuteAsync();
+                var authenticationResult = await app.AcquireTokenForClient(new[] { $"{appIdUriValue}/.default" }).ExecuteAsync();
+                if (authenticationResult is null)
+                    throw new ArgumentNullException(nameof(authenticationResult), "The result of service to get a token is null!");
 
-                return result.AccessToken;
+                return authenticationResult.AccessToken;
             }
             catch (Exception ex)
             {
                 // Log the exception
-                throw new Exception("Authentication failed!");
+                throw new InvalidOperationException("Authentication failed!");
             }
         }
     }

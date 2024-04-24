@@ -26,14 +26,14 @@ namespace TruckDriver.Infrastructure.Services
 
                 var secret = await _secretClient.GetSecretAsync(secreKey);
                 if (secret is null)
-                    throw new ArgumentNullException(nameof(secret));
+                    throw new ArgumentNullException(nameof(secret), "The result of Azure keyvault is null!");
 
                 return secret.Value.Value;
             }
             catch (Exception ex)
             {
                 // Log the exception
-                throw new Exception("AzureKeyVault failed!");
+                throw new InvalidOperationException("AzureKeyVault failed!");
             }
         }
     }
