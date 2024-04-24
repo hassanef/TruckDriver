@@ -14,8 +14,12 @@ namespace TruckDriver.Infrastructure.Repositories
         {
             var query = new QueryDefinition(string.Format(QueryTemplate, LocationParameter))
                                                     .WithParameter(LocationParameter, location);
+            if(query is null)
+                throw new ArgumentNullException(nameof(query));
 
             var queryResultSetIterator = _container.GetItemQueryIterator<Driver>(query);
+            if (queryResultSetIterator is null)
+                throw new ArgumentNullException(nameof(queryResultSetIterator));
 
             var drivers = new List<Driver>();
             while (queryResultSetIterator.HasMoreResults)

@@ -1,25 +1,38 @@
-﻿using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
+﻿using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TruckDriver.Domain.Utils;
+using TruckDriver.Infrastructure.Extensions;
 
 namespace TruckDriver.Application.Infrastructure.Extensions
 {
     public static class AuthenticationConfiguration
     {
-        public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
+        public static void ConfigureAuthentication(this IServiceCollection services, WebApplicationBuilder builder)
         {
-            var secretClient = new SecretClient(new Uri(configuration[AzureKeys.KeyVaultUri]), new DefaultAzureCredential());
-            var appIdUriValue = secretClient.GetSecret(configuration[AzureKeys.ApplicationIdUri]).Value;
+            //TODO: This part of code is just for testing and it must be remove from there
+            var credential = AzureKeyVaultCredential.Create(builder.Configuration["Azure:TenantId"], builder.Configuration["Azure:ClientId"], builder.Configuration["Azure:SecretKey"]);
+            if (credential is null)
+                throw new ArgumentNullException(nameof(credential));
+
+            var secretClient = new SecretClient(new Uri(builder.Configuration[AzureKeys.KeyVaultUri]), credential);
+            if (secretClient is null)
+                throw new ArgumentNullException(nameof(secretClient));
+
+            var appIdUriValue = secretClient.GetSecret(builder.Configuration[AzureKeys.ApplicationIdUri]).Value;
+            if (appIdUriValue is null)
+                throw new ArgumentNullException(nameof(appIdUriValue));
+            var authorityEndpointUriValue = secretClient.GetSecret(builder.Configuration[AzureKeys.AuthorityEndpointUri]).Value;
+            if (authorityEndpointUriValue is null)
+                throw new ArgumentNullException(nameof(authorityEndpointUriValue));
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    options.Authority = "https://login.microsoftonline.com/914a7823-10b4-403f-8482-e4ce36daffe4";
+                    options.Authority = authorityEndpointUriValue.Value;
                     options.Audience = appIdUriValue.Value;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
