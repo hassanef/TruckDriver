@@ -19,10 +19,16 @@ namespace TruckDriver.Infrastructure.Repositories
         {
             try
             {
+                if(predicate is null)
+                    throw new ArgumentNullException(nameof(predicate), "predicate in reposity is null!");
+
                 using FeedIterator<T> queryIterator = _container.GetItemLinqQueryable<T>()
                                                                 .Where(predicate)
                                                                 .ToFeedIterator<T>();
-            
+
+                if(queryIterator is null)
+                    throw new ArgumentNullException(nameof(queryIterator), "queryIterator in reposity is null!");
+
                 var results = new List<T>();
                 while (queryIterator.HasMoreResults)
                 {

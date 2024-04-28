@@ -9,6 +9,9 @@ namespace TruckDriver.Application.Queries
         private readonly ITruckDriverRepository _truckDriverRepository = truckDriverRepository;
         public async Task<IEnumerable<DriverDto>> GetAsync(string location)
         {
+            if(string.IsNullOrWhiteSpace(location))
+                return [];
+
             var drivers = await _truckDriverRepository.GetAsync(driver => driver.Location.ToLower() == location.ToLower());
             if (drivers is null)
                 throw new ArgumentNullException(nameof(drivers), "truck drivers query is null!");
@@ -17,7 +20,6 @@ namespace TruckDriver.Application.Queries
                                                                     driver.FirstName,
                                                                     driver.LastName,
                                                                     driver.Location));
-
             return driverDtos;
         }
     }
