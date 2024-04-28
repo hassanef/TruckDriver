@@ -2,8 +2,7 @@
 
 namespace TruckDriver.Domain.IRepositories
 {
-    public interface ITruckDriverRepository
+    public interface ITruckDriverRepository: IGenericRepository<Driver>
     {
-        Task<IEnumerable<Driver>> GetAsync(string location);
     }
 }
