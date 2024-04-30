@@ -23,6 +23,7 @@ namespace TruckDriver.Api.GlobalException
             {
                 Status = StatusCodes.Status500InternalServerError,
                 Title = "Server error"
+                
             };
 
             httpContext.Response.StatusCode = problemDetails.Status.Value;
