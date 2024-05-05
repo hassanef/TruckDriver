@@ -3,6 +3,8 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TruckDriver.Domain.Utils;
+using TruckDriver.Infrastructure.Repositories;
+using TruckDriver.Infrastructure.Services.Contract;
 
 namespace TruckDriver.Application.Infrastructure.Extensions
 {
@@ -10,6 +12,17 @@ namespace TruckDriver.Application.Infrastructure.Extensions
     {
         public static void AddCosmosDB(this IServiceCollection services, IConfiguration configuration)
         {
+            var cosmosClientOptions = new CosmosClientOptions()
+            {
+                SerializerOptions = new CosmosSerializationOptions()
+                {
+                    PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase,
+                    Indented = true
+                },
+                ConnectionMode = ConnectionMode.Direct
+            };
+
+
             var secretClient = services.BuildServiceProvider().GetRequiredService<SecretClient>();
             if (secretClient is null)
                 throw new ArgumentNullException(nameof(secretClient));
@@ -22,9 +35,9 @@ namespace TruckDriver.Application.Infrastructure.Extensions
             if (cosmosKey is null)
                 throw new ArgumentNullException(nameof(cosmosKey));
 
-            services.AddSingleton<CosmosClient>(sp =>
+            services.AddSingleton(sp =>
             {
-                return new CosmosClient(cosmosEndpoint?.Value, cosmosKey?.Value);
+                return new CosmosClient(cosmosEndpoint?.Value, cosmosKey?.Value, cosmosClientOptions);
             });
 
             services.AddSingleton(sp =>
@@ -36,8 +49,7 @@ namespace TruckDriver.Application.Infrastructure.Extensions
                 var database = cosmosClient.GetDatabase(databaseName);
                 return database.GetContainer(containerName);
             });
-
-           
+            services.AddSingleton<ICosmosContainerService, CosmosContainerService>();
         }
     }
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TruckDriver.Application.Dto;
-using TruckDriver.Domain.Models;
+﻿using TruckDriver.Application.Dto;
 
 namespace TruckDriver.Application.Queries.Contracts
 {
